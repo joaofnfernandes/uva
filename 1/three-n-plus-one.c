@@ -37,6 +37,11 @@ int cycleLength(struct hashTable* dictionary, int n){
 
 int maxCycleLength(struct hashTable* dictionary, int i, int j){
 	int max = 0, length = 0, k = 0;
+	if(i > j){
+		int aux = i;
+		i = j;
+		j = aux;
+	}
 	for(k = i; k <= j; k++) {
 		if(k % 2 == 1){
 			length = cycleLength(dictionary, k);
@@ -63,3 +68,4 @@ void testMaxCycleLength(){
 	assert(memoizedMaxCycleLength(201, 210) == 89);
 	assert(memoizedMaxCycleLength(900, 1000) == 174);
 }
+
