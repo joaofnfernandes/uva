@@ -33,17 +33,18 @@ struct hashTable* ht_create(int size){
 	}
 	struct hashTable* table = NULL;
 
-	//Allocate table
+	/*Allocate table*/
 	if((table = malloc(sizeof(struct hashTable))) == NULL){
 		return NULL;
 	}
 
 	table->size = size;
-	//Allocate head nodes
+	/*Allocate head nodes*/
 	if((table->table = malloc(sizeof(struct entry*) * size)) == NULL){
 		return NULL;
 	}
-	for(int i = 0; i < size; i++){
+	int i = 0;
+	for(i = 0; i < size; i++){
 		table->table[i] = NULL;
 	}
 	return table;
@@ -104,7 +105,8 @@ int ht_get(struct hashTable* table, int key){
 }
 
 void ht_delete(struct hashTable** table) {
-	for(int bin = 0; bin < (*table)->size; bin++){
+	int bin = 0;
+	for(bin = 0; bin < (*table)->size; bin++){
 		struct entry* pair = NULL;
 		while((*table)->table[bin] != NULL){
 			pair = (*table)->table[bin];
@@ -141,7 +143,8 @@ void test_ht_add(){
 	assert(table == NULL);
 	table = ht_create(5);
 	assert(table->size = 5);
-	for(int i = 0; i < 10; i++){
+	int i = 0;
+	for(i = 0; i < 10; i++){
 		ht_add(table, i, i);
 		assert(ht_get(table, i) == i);
 	}

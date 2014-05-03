@@ -36,8 +36,8 @@ int cycleLength(struct hashTable* dictionary, int n){
 }
 
 int maxCycleLength(struct hashTable* dictionary, int i, int j){
-	int max = 0, length = 0;
-	for(int k = i; k <= j; k++) {
+	int max = 0, length = 0, k = 0;
+	for(k = i; k <= j; k++) {
 		if(k % 2 == 1){
 			length = cycleLength(dictionary, k);
 		} else {
