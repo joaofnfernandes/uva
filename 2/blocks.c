@@ -18,29 +18,45 @@ typedef struct node_s node_t;
 struct world_s {
 	/*Direct pointer to a block*/
 	node_t** blocks;
-	/*Stacks of blocks. From top to bottom*/
+	/*Stack of blocks. From top to bottom*/
 	node_t** position_blocks_top;
-	/*Stacks of blocks. From bottom to top*/
+	/*Stack of blocks. From bottom to top*/
 	node_t** position_blocks_bottom;
 };
 typedef struct world_s world_t;
-/*---------- Function headers ----------*/
-node_t* node_create(int value);
-world_t* world_create(int size);
-node_t* block_get(world_t* world, int b);
-int block_get_stack(world_t* world, int b);
-void move_top_block(world_t* world, int a, int b);
-int equals(node_t* a, node_t* b);
+
+/*---------- Functions ----------*/
+/* Manipulate Blocks */
+/* Move one stack on top of another */
 void pile_over(world_t* world, int a, int b);
+/* Move a stack directly on top of a block */
 void pile_onto(world_t* world, int a, int b);
+ /* Add block A on top of stack containing B */
 void move_over(world_t* world, int a, int b);
+/* Add block A on top of block B */
 void move_onto(world_t* world, int a, int b);
 
-/* Test headers*/
+/* Auxiliary */
+node_t* node_create(int value);
+world_t* world_create(int size);
+/* Gets a pointer to the block */
+node_t* block_get(world_t* world, int b);
+/* Gets the stack in which the block is currently at */
+int block_get_stack(world_t* world, int b);
+/* Move the top block from one stack to another */
+void move_top_block(world_t* world, int a, int b);
+/* Compares to blocks */
+int equals(node_t* a, node_t* b);
+void block_set_stack(node_t* n, int i);
+
+//TODO: delete blocks and delete world
+
+/* Tests*/
 void test_move_top_block();
 void test_pile_over();
 void test_pile_onto();
 void test_move_over();
+void test_move_onto();
 
 /*---------- Main ----------*/
 
@@ -49,6 +65,7 @@ int main(int argc, char** argv) {
 	test_pile_over();
 	//test_move_over();
 	//test_pile_onto();
+	//test_move_onto();
 	return 0;
 }
 
@@ -91,7 +108,7 @@ int block_get_stack(world_t* world, int b) {
 	return (block_get(world, b))->current_stack;
 }
 
-/* Moves the top block of one stack to another */
+/* Moves the top block of one stack to another. A and B are slot numbers */
 void move_top_block(world_t* world, int a, int b) {
 	node_t* block_a = world->position_blocks_top[a];
 	node_t* block_b = world->position_blocks_top[b];
@@ -126,21 +143,22 @@ void move_top_block(world_t* world, int a, int b) {
 	block_a->current_stack = b;
 }
 
+
 void test_move_top_block(){
 	world_t* world = world_create(2);
 	move_top_block(world, 1, 2);
-	/* One on top of two */
-	assert(world->position_blocks_top[1] == NULL);
-	assert(world->position_blocks_bottom[1] == NULL);
-	assert(equals(world->position_blocks_top[2], block_get(world, 1)));
-	assert(equals(world->position_blocks_bottom[2], block_get(world, 2)));
+	/* Test case 1 - move block on top of another */
+	assert(world->position_blocks_top[1] == NULL &&
+			world->position_blocks_bottom[1] == NULL);
+	assert(world->position_blocks_top[2]->value == 1 && 
+			world->position_blocks_bottom[2]->value == 2);
 	assert(equals(block_get(world, 2)->next, block_get(world, 1)));
 	assert(equals(block_get(world, 1)->previous, block_get(world, 2)));
 
-	/* Try to move a block from empty stack*/
+	/* Test case 2 - try to move slot without block*/
 	move_top_block(world, 1, 2);
 
-	/* One back to its original place */
+	/* Test case 3 - block to empty space */
 	move_top_block(world, 2, 1);
 	assert(equals(world->position_blocks_top[1], block_get(world, 1)));
 	assert(equals(world->position_blocks_bottom[1], block_get(world, 1)));
@@ -152,8 +170,6 @@ void test_move_top_block(){
 	assert(block_get(world, 1)->previous == NULL);
 }
 
-/* Move one stack on top of another */
-// TODO if a already on top of b, or vice versa, do nothing
 void pile_over(world_t* world, int a, int b) {
 	/* Find in which stack A and B are currently in */
 	node_t* block_a = block_get(world, a);
@@ -164,6 +180,11 @@ void pile_over(world_t* world, int a, int b) {
 
 	node_t* a_top = world->position_blocks_top[a];
 	node_t* b_top = world->position_blocks_top[b];
+
+	/* Already part of the same stack, do nothing */
+	if(a == b) {
+		return;
+	}
 
 	/* Fix pointers to top of stack*/
 	world->position_blocks_top[a] = block_a->previous;
@@ -188,35 +209,57 @@ void pile_over(world_t* world, int a, int b) {
 		b_top->next = block_a;	
 	}
 	
-	/* Fix A's stack */
+	/* Fix moved blocks internal info */
 	node_t* current_node = block_a;
 	while(current_node != NULL){
-		current_node->current_stack = b;
+		block_set_stack(current_node, b);
 		current_node = current_node->next;
 	}
 
 }
 
+/* Todo
+	implement asserts
+*/
 void test_pile_over(){
-	world_t* world = world_create(4);
-	
+	/* Set up*/
+	world_t* world = world_create(6);
 	pile_over(world, 1, 2);
-	assert(world->position_blocks_top[1] == NULL);
-	assert(world->position_blocks_bottom[1] == NULL);
-	assert(equals(world->position_blocks_top[2], block_get(world, 1)));
-	assert(equals(world->position_blocks_bottom[2], block_get(world, 2)));
-	assert(equals(block_get(world, 2)->next, block_get(world, 1)));
-	assert(equals(block_get(world, 1)->previous, block_get(world, 2)));
-
 	pile_over(world, 3, 4);
-	pile_over(world, 1, 4);
-	assert(equals(world->position_blocks_top[2], block_get(world, 2)));
-	assert(world->position_blocks_top[3] == NULL);
-	assert(equals(world->position_blocks_top[4], block_get(world, 1)));
-	assert(equals(world->position_blocks_top[4]->previous, block_get(world, 3)));
-	assert(equals(world->position_blocks_bottom[4], block_get(world, 4)));
-	assert(equals(world->position_blocks_bottom[4]->next, block_get(world, 3)));
-	assert(equals(world->position_blocks_bottom[4]->next->next, block_get(world, 1)));
+	pile_over(world, 5, 6);
+
+	/* Test case 1 - move all left stack to right stack*/
+	pile_over(world, 2, 4);
+	for(int i = 1; i <= 4; i++) {
+		assert(block_get_stack(world, i) == 4);
+	}
+	assert(world->position_blocks_bottom[2] == NULL &&
+			world->position_blocks_top[2] == NULL);
+
+
+	/* Test case 2 - move part of left stack to right stack. Choose middle elem in right stack*/
+	/* Elements should be on top of 6*/
+	pile_over(world, 3, 5);
+	int stack[] = {1, 2, 3, 5, 6};
+	for(int i = 0; i < 5; i++) {
+		assert(block_get_stack(world, stack[i]) == 6);
+	}
+	assert(world->position_blocks_bottom[4]->value == 4 &&
+			world->position_blocks_top[4]->value == 4);
+	assert(world->position_blocks_bottom[6]->value == 6 &&
+			world->position_blocks_top[6]->value == 1);
+
+	/* Test case 3 - move block that is already on top of another*/
+	pile_over(world, 3, 5);
+	for(int i = 0; i < 5; i++) {
+		assert(block_get_stack(world, stack[i]) == 6);
+	}
+	assert(world->position_blocks_bottom[4]->value == 4 &&
+			world->position_blocks_top[4]->value == 4);
+	assert(world->position_blocks_bottom[6]->value == 6 &&
+			world->position_blocks_top[6]->value == 1);
+
+	//TODO teardown
 
 }
 
@@ -224,7 +267,10 @@ int equals(node_t* a, node_t* b){
 	return a->value == b->value ? true : false;
 }
 
-/* Move a stack directly on top of a block */
+void block_set_stack(node_t* n, int i) {
+	n->current_stack = i;
+}
+
 void pile_onto(world_t* world, int a, int b) {
 	node_t* block_a = block_get(world, a);
 	node_t* block_b = block_get(world, b);
@@ -255,7 +301,6 @@ void test_pile_onto() {
 
 }
 
-/* Add block a on top of stack b*/
 void move_over(world_t* world, int a, int b) {
 	node_t* a_top = world->position_blocks_top[a];
 	node_t* a_block = block_get(world, a);
