@@ -48,6 +48,7 @@ void move_top_block(world_t* world, int a, int b);
 /* Compares to blocks */
 int equals(node_t* a, node_t* b);
 void block_set_stack(node_t* n, int i);
+int block_is_on_top(world_t* world, node_t* a, node_t* b);
 
 //TODO: delete blocks and delete world
 
@@ -142,7 +143,6 @@ void move_top_block(world_t* world, int a, int b) {
 	/* Fix A's stack */
 	block_a->current_stack = b;
 }
-
 
 void test_move_top_block(){
 	world_t* world = world_create(2);
@@ -277,7 +277,20 @@ void block_set_stack(node_t* n, int i) {
 	n->current_stack = i;
 }
 
+int block_is_on_top(world_t* world, node_t* a, node_t* b){
+	if (a == NULL || b == NULL) {
+		return false;
+	}
+	node_t* current = b;
+	while (current != NULL && !equals(a, current)) {
+		current = current->next;
+	}
+	return current != NULL ? true : false;
+}
+
+//TODO: A is beneath B
 void pile_onto(world_t* world, int a, int b) {
+
 	node_t* block_a = block_get(world, a);
 	node_t* block_b = block_get(world, b);
 	a = block_a->current_stack;
@@ -286,39 +299,54 @@ void pile_onto(world_t* world, int a, int b) {
 	node_t* b_top = world->position_blocks_top[b];
 
 	/* If blocks already on top of one another*/
-	if (a == b && equals(block_a->previous, block_b)
-			&& equals(block_b->next, block_a)) {
-		return;
+	if (a == b) {
+		if (equals(block_a->previous, block_b) && equals(block_b->next, block_a)) {
+			return;
+		}
 	}
-	/* Temporarily remove A's stack*/
+
+	/* Break stack A into two. The top stack will be moved */
 	world->position_blocks_top[a] = block_a->previous;
 	if(block_a->previous != NULL){
 		block_a->previous->next = NULL;
 	} else {
 		world->position_blocks_bottom[a] = NULL;
 	}
-	/* Put B stack in their original position */
+
+	/* Make B the top of its stack */
 	node_t* current_node = world->position_blocks_top[b];
 	while(!equals(current_node, block_b)){
-		move_top_block(world, b, current_node->value);
 		current_node = current_node->previous;
+		move_top_block(world, b, world->position_blocks_top[b]->value);
 	}
+
 	/* Move A stack on top of B */
 	world->position_blocks_top[b] = a_top;
-	block_a->previous = b_top;
-	b_top->next = block_a;
+	block_a->previous = block_b;
+	if(block_b != NULL) {
+		block_b->next = block_a;
+	} else {
+		world->position_blocks_bottom[b] = block_b;
+	}
 }
 
 // TODO implement
 // todo test case where they are part of same stack but not directly
+// test case where A is beneath B
 void test_pile_onto() {
-	/* Test case 2 - Middle of stack A to middle of stack B */
+	/* Set up */
 	world_t* world = world_create(6);
 	pile_onto(world, 1, 2);
 	pile_onto(world, 3, 4);
-	//pile_onto(world, 2, 4); //TODO fix segmentation fault
-	//assert(block_get_stack(world, 3) == 3);
+	pile_onto(world, 2, 4);
+
+	/* Test case 2 - Middle of stack A to middle of stack B */
+	assert(block_get_stack(world, 3) == 3);
+	assert(world->position_blocks_top[4]->value == 1 &&
+			world->position_blocks_bottom[4]->value == 4);
+
 	/* Test case 1 - stack A already on top of block B*/
+	pile_onto(world, 1, 4);
 	
 
 }
