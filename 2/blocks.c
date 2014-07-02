@@ -330,9 +330,7 @@ void pile_onto(world_t* world, int a, int b) {
 	}
 }
 
-// TODO implement
-// todo test case where they are part of same stack but not directly
-// test case where A is beneath B
+// TODO test case where A is beneath B
 void test_pile_onto() {
 	/* Set up */
 	world_t* world = world_create(6);
@@ -347,6 +345,9 @@ void test_pile_onto() {
 
 	/* Test case 1 - stack A already on top of block B*/
 	pile_onto(world, 1, 4);
+	assert(block_get_stack(world, 2) == 2);
+	assert(block_get(world, 4)->next->value == 1 &&
+			block_get(world, 1)->previous->value == 4);
 	
 
 }
