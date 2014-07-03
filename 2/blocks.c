@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #define true 1
 #define false 0
@@ -53,6 +54,7 @@ int block_is_on_top(world_t* world, node_t* a, node_t* b);
 //TODO: delete blocks and delete world
 
 /* Tests*/
+void run_all_tests();
 void test_move_top_block();
 void test_pile_over();
 void test_pile_onto();
@@ -62,15 +64,58 @@ void test_move_onto();
 /*---------- Main ----------*/
 
 int main(int argc, char** argv) {
+	int size = 0;
+	if(scanf("%d", &size) < 0) {
+		fprintf(stderr, "%s\n", "Define how many cubes there are, at the beginning of the file");
+	}
+	world_t* world = world_create(size);
+	char str1[10]; char str2[10];
+	int cube1 = 0, cube2 = 0;
+	
+	while(true) {
+		scanf("%s", str1);
+		if (strcmp(str1, "quit") == 0) {
+			break;
+		}
+		scanf("%d %s %d", &cube1, str2, &cube2);
+		/* Pile */
+		if (strcmp(str1, "pile") == 0) {
+			/* Onto */
+			if (strcmp(str2, "onto")) {
+				pile_onto(world, cube1, cube2);
+			} 
+			/* Over */
+			else {
+				pile_over(world, cube1, cube2);
+			}
+		}
+		/* Move */
+		else {
+			/* Onto */
+			if (strcmp(str2, "onto")) {
+				move_onto(world, cube1, cube2);
+			}
+			/* Over */
+			else {
+				move_over(world, cube1, cube2);
+			}
+		}
+
+	}
+
+	return 0;
+}
+
+/*---------- Implementations ----------*/
+
+void run_all_tests() {
 	test_move_top_block();
 	test_pile_over();
 	test_pile_onto();
 	test_move_over();
 	test_move_onto();
-	return 0;
 }
 
-/*---------- Implementations ----------*/
 node_t* node_create(int value) {
 	node_t* node = (node_t*) malloc(sizeof(node_t));
 	node->value = value;
@@ -351,16 +396,17 @@ void test_pile_onto() {
 	pile_onto(world, 3, 4);
 	pile_onto(world, 2, 4);
 
-	/* Test case 2 - Middle of stack A to middle of stack B */
+	/* Test case 1 - Middle of stack A to middle of stack B */
 	assert(block_get_stack(world, 3) == 3);
 	assert(block_get_stack(world, 1) == 4 &&
 			block_get_stack(world, 2) == 4);
 	assert(world->position_blocks_top[4]->value == 1 &&
 			world->position_blocks_bottom[4]->value == 4);
 
-	/* Test case 1 - stack A already on top of block B*/
+	/* Test case 2 - stack A already on top of block B*/
 	pile_onto(world, 1, 4);
 	assert(block_get_stack(world, 2) == 2);
+	assert(block_get_stack(world, 1) == 4);
 	assert(block_get(world, 4)->next->value == 1 &&
 			block_get(world, 1)->previous->value == 4);
 	
@@ -441,13 +487,10 @@ void move_onto(world_t* world, int a, int b) {
 	node_t* b_top = world->position_blocks_top[b];
 
 	/* If blocks already on top of one another*/
-	if (a == b) {
-		if (equals(block_a->previous, block_b) && equals(block_b->next, block_a)) {
-			return;
-		} else if (block_is_on_top(world, block_a, block_b)) {
-			return;
-		}
+	if (equals(block_a->previous, block_b) && equals(block_b->next, block_a)) {
+		return;
 	}
+
 	/* Make A the top of its stack */
 	node_t* current_node = a_top;
 	int move_to = 0;
@@ -482,9 +525,9 @@ void test_move_onto() {
 			world->position_blocks_bottom[4]->value == 4);
 
 	/* Test case 3 - A and B on same stack */
-	pile_over(world, 3, 4);
+	move_onto(world, 3, 2);
 	move_onto(world, 3, 4);
-	assert(block_get_stack(world, 2) == 2 ); //todo failing
+	assert(block_get_stack(world, 2) == 2 );
 	assert(world->position_blocks_top[4]->value == 3 &&
 			world->position_blocks_bottom[4]->value == 4);
 
