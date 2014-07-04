@@ -14,3 +14,5 @@ where a and b are block numbers, puts the pile of blocks consisting of block a, 
 
 - quit
 terminates manipulations in the block world.
+
+Any command in which a = b or in which a and b are in the same stack of blocks is an illegal command. All illegal commands should be ignored and should have no affect on the configuration of blocks.
