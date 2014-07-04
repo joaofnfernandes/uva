@@ -66,7 +66,7 @@ void test_move_onto();
 /*---------- Main ----------*/
 
 int main(int argc, char** argv) {
-	run_tests();
+	run();
 	return 0;
 }
 

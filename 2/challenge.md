@@ -1,3 +1,9 @@
+# The Problem
+
+The problem is to parse a series of commands that instruct a robot arm in how to manipulate blocks that lie on a flat table. Initially there are n blocks on the table (numbered from 0 to n-1).
+
+# Valid Commands
+
 The valid commands for the robot arm that manipulates blocks are:
 
 - move a onto b
@@ -16,3 +22,38 @@ where a and b are block numbers, puts the pile of blocks consisting of block a, 
 terminates manipulations in the block world.
 
 Any command in which a = b or in which a and b are in the same stack of blocks is an illegal command. All illegal commands should be ignored and should have no affect on the configuration of blocks.
+
+# Input
+
+The input begins with an integer n on a line by itself representing the number of blocks in the block world. You may assume that 0 < n < 25.
+The number of blocks is followed by a sequence of block commands, one command per line. Your program should process all commands until the quit command is encountered.
+
+You may assume that all commands will be of the form specified above. There will be no syntactically incorrect commands.
+
+## Sample Input
+
+10
+move 9 onto 1
+move 8 over 1
+move 7 over 1
+move 6 over 1
+pile 8 over 6
+pile 8 over 5
+move 2 over 1
+move 4 over 9
+quit
+
+# Output
+The output should consist of the final state of the blocks world. Each original block position numbered i should appear followed immediately by a colon. If there is at least a block on it, the colon must be followed by one space, followed by a list of blocks that appear stacked in that position with each block number separated from other block numbers by a space. Don't put any trailing spaces on a line.
+
+## Sample Output
+ 0: 0
+ 1: 1 9 2 4
+ 2:
+ 3: 3
+ 4:
+ 5: 5 8 7 6
+ 6:
+ 7:
+ 8:
+ 9:
