@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g
+CFLAGS=-g -ansi
 OUT_DIR=bin
 
 all: build run
@@ -10,7 +10,7 @@ build: main.c
 $(OUT_DIR)/main: build
 	
 run: $(OUT_DIR)/main
-	@./$(OUT_DIR)/main < sample-input.txt
+	@./$(OUT_DIR)/main
 
 clean:
 	@rm -rf $(OUT_DIR)/*
