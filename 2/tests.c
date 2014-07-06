@@ -2,9 +2,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-
-
 
 #define true 1
 #define false 0
@@ -30,7 +27,7 @@ void run_tests() {
 }
 
 void test_move_top_block(){
-	world_t* world = world_create(2);
+	world_t* world = world_create(3);
 	move_top_block(world, 1, 2);
 	/* Test case 1 - move block on top of another */
 	assert(world->position_blocks_top[1] == NULL &&
@@ -55,18 +52,22 @@ void test_move_top_block(){
 	assert(block_get(world, 2)->previous == NULL);
 	assert(block_get(world, 1)->next == NULL);
 	assert(block_get(world, 1)->previous == NULL);
+
+	/* Tear down */
+	world_delete(&world);
 }
 
 void test_pile_over(){
 	/* Set up*/
-	world_t* world = world_create(6);
+	world_t* world = world_create(7);
 	pile_over(world, 1, 2);
 	pile_over(world, 3, 4);
 	pile_over(world, 5, 6);
 
 	/* Test case 1 - move all left stack to right stack*/
 	pile_over(world, 2, 4);
-	for(int i = 1; i <= 4; i++) {
+	int i = 0;
+	for(i = 1; i <= 4; i++) {
 		assert(block_get_stack(block_get(world, i)) == 4);
 	}
 	assert(world->position_blocks_bottom[2] == NULL &&
@@ -77,7 +78,7 @@ void test_pile_over(){
 	/* Elements should be on top of 6*/
 	pile_over(world, 3, 5);
 	int stack[] = {1, 2, 3, 5, 6};
-	for(int i = 0; i < 5; i++) {
+	for(i = 0; i < 5; i++) {
 		assert(block_get_stack(block_get(world, stack[i])) == 6);
 	}
 	assert(world->position_blocks_bottom[4]->value == 4 &&
@@ -87,7 +88,7 @@ void test_pile_over(){
 
 	/* Test case 3 - move block that is already on top of another*/
 	pile_over(world, 3, 5);
-	for(int i = 0; i < 5; i++) {
+	for(i = 0; i < 5; i++) {
 		assert(block_get_stack(block_get(world, stack[i])) == 6);
 	}
 	assert(world->position_blocks_bottom[4]->value == 4 &&
@@ -95,13 +96,21 @@ void test_pile_over(){
 	assert(world->position_blocks_bottom[6]->value == 6 &&
 			world->position_blocks_top[6]->value == 1);
 
-	//TODO teardown
+	/* Test case 4 - move stack to middle of stack*/
+	pile_over(world, 0, 4);
+	pile_over(world, 4, 2);
+	for (i = 0; i < 7; i++) {
+		assert(block_get_stack(block_get(world, i)) == 6);
+	}
+
+	/* Tear down */
+	world_delete(&world);
 
 }
 
 void test_pile_onto() {
 	/* Set up */
-	world_t* world = world_create(6);
+	world_t* world = world_create(7);
 	pile_onto(world, 1, 2);
 	pile_onto(world, 3, 4);
 	pile_onto(world, 2, 4);
@@ -117,11 +126,13 @@ void test_pile_onto() {
 	pile_onto(world, 1, 4);
 	assert(block_get_stack(block_get(world, 2)) == 4);
 
+	/* Tear down */
+	world_delete(&world);
 }
 
 void test_move_over() {
 	/* Set up */
-	world_t* world = world_create(4);
+	world_t* world = world_create(5);
 
 	/* Test case 1 - A is top of stack */
 	move_over(world, 1, 2);
@@ -151,12 +162,12 @@ void test_move_over() {
 			world->position_blocks_bottom[4]->value == 4);
 
 	/* Tear down */
-
+	world_delete(&world);
 }
 
 void test_move_onto() {
 	/* Set up */
-	world_t* world = world_create(4);
+	world_t* world = world_create(5);
 
 	/* Test case 1 - A is top of stack */
 	move_onto(world, 1, 2);
@@ -182,6 +193,7 @@ void test_move_onto() {
 	assert(block_get_stack(block_get(world, 2)) == 4);
 
 	/* Tear down */
+	world_delete(&world);
 }
 
 #endif
