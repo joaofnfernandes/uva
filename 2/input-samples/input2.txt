@@ -1,0 +1,16 @@
+5
+pile 1 over 2
+pile 2 over 3
+pile 2 onto 4
+pile 4 onto 2
+move 1 over 3
+pile 3 over 4
+move 0 onto 4
+quit
+
+expected output
+0:
+1: 1
+2: 2
+3: 3
+4: 4 0
