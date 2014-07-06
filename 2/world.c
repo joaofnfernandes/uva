@@ -3,15 +3,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include <string.h>
 
 #define true 1
 #define false 0
 
 
-
 /*Encapsulates all the world state*/
 struct world_s {
+	int size;
 	/*Direct pointer to a block*/
 	node_t** blocks;
 	/*Stack of blocks. From top to bottom*/
@@ -24,6 +23,7 @@ typedef struct world_s world_t;
 /*---------- Declarations  ----------*/
 
 world_t* world_create(int size);
+void world_delete(world_t** world);
 
 /* Move one stack on top of another */
 void pile_over(world_t* world, int a, int b);
@@ -41,6 +41,8 @@ node_t* block_get(world_t* world, int b);
 void move_top_block(world_t* world, int a, int b);
 /* Checks if one block on on top of another */
 int block_is_on_top(world_t* world, node_t* a, node_t* b);
+/* Prints the cubes in a stack */
+void world_print_stack(world_t* world, int i);
 
 /*------------ Implementation -----------*/
 
@@ -48,21 +50,34 @@ world_t* world_create(int size) {
 	if(size <= 0) {
 		return NULL;
 	}
-	/*allocations. we'll use 1-based indexing. So position[0] has no meaning*/
 	world_t* world = (world_t*) malloc(sizeof(world_t));
-	world->blocks = (node_t**) malloc(sizeof(node_t) * (size + 1)); 
-	world->position_blocks_top = (node_t**) malloc(sizeof(node_t) * (size + 1)); 
-	world->position_blocks_bottom = (node_t**) malloc(sizeof(node_t) * (size + 1)); 
+	world->blocks = (node_t**) malloc(sizeof(node_t) * (size)); 
+	world->position_blocks_top = (node_t**) malloc(sizeof(node_t) * (size)); 
+	world->position_blocks_bottom = (node_t**) malloc(sizeof(node_t) * (size)); 
 	/*populate*/
+	world->size = size;
 	int i = 0; 
 	node_t* new_node = NULL;
-	for(i = 1; i <= size; i++) {
+	for(i = 0; i < size; i++) {
 		new_node = node_create(i);
 		world->blocks[i] = new_node;
 		world->position_blocks_top[i] = new_node;
 		world->position_blocks_bottom[i] = new_node;
 	}
 	return world;
+}
+
+void world_delete(world_t** world) {
+	free((*world)->position_blocks_top);
+	(*world)->position_blocks_top = NULL;
+	free((*world)->position_blocks_bottom);
+	(*world)->position_blocks_bottom = NULL;
+	for (int i = 0; i < (*world)->size; i++) {
+		free((*world)->blocks[i]);
+		(*world)->blocks[i] = NULL;
+	}
+	free((*world)->blocks);
+	(*world)->blocks = NULL;
 }
 
 node_t* block_get(world_t* world, int b) {
@@ -258,5 +273,15 @@ void move_onto(world_t* world, int a, int b) {
 	/* Pile A onto B */
 	pile_onto(world, block_a->value, block_b->value);
 }
+
+void world_print_stack(world_t* world, int i) {
+	node_t* current_block = world->position_blocks_bottom[i];
+	while (current_block != NULL) {
+		printf(" %d", current_block->value);
+		current_block = current_block->next;
+	}
+
+}
+
 
 #endif

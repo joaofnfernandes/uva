@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #define true 1
 #define false 0
@@ -22,6 +21,7 @@ typedef struct node_s node_t;
 
 /*---------- Functions ----------*/
 node_t* node_create(int value);
+void node_delete(node_t** node);
 /* Gets the stack in which the block is currently at */
 int block_get_stack(node_t* block);
 void block_set_stack(node_t* n, int i);
@@ -36,6 +36,11 @@ node_t* node_create(int value) {
 	node->next = NULL;
 	node->previous = NULL;
 	return node;
+}
+
+void node_delete (node_t** node) {
+	free(*node);
+	*node = NULL;
 }
 
 int block_get_stack(node_t* block) {
