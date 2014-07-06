@@ -4,13 +4,13 @@ OUT_DIR=bin
 
 all: build run
 
-build: blocks.c
-	@$(CC) $(CFLAGS) blocks.c -o $(OUT_DIR)/blocks
+build: main.c
+	@$(CC) $(CFLAGS) main.c -o $(OUT_DIR)/main
 
-$(OUT_DIR)/blocks: build
+$(OUT_DIR)/main: build
 	
-run: $(OUT_DIR)/blocks
-	@./$(OUT_DIR)/blocks < sample-input.txt
+run: $(OUT_DIR)/main
+	@./$(OUT_DIR)/main < sample-input.txt
 
 clean:
 	@rm -rf $(OUT_DIR)/*
