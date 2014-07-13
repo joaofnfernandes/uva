@@ -18,7 +18,6 @@ Integers on a line will be separated by one or more spaces. Your program should 
 
 1 2 3 4 5 6 7 8 9
 5 10 5 20 10 5 10 20 10
-Sample Output
 
 #The Output
 
