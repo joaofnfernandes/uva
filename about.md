@@ -2,4 +2,4 @@
 
 This repository stores my solutions to the [UVA online challenges][1]
 
-[1]:http://www.jnd.org/dn.pubs.html
+[1]:http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8
