@@ -1,8 +1,11 @@
-import java.io.BufferedReader;
 import java.io.*;
 import java.util.*;
 
-
+/**
+ * 
+ * TODO: we don't need to allocate int[256]. 57 are enough.
+ *
+ */
 public class CharFrequency {
 
 	private String filename;
