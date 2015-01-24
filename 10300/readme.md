@@ -10,7 +10,7 @@ The first line of input contains a single positive integer n (<20), the number o
 # Output
 For each test case output one line containing a single integer that holds the summed burden for Germany's budget, which will always be a whole number. Do not output any blank lines.
  
-Sample Input
+# Sample Input
 3
 5
 1 1 1
@@ -26,7 +26,8 @@ Sample Input
 10 30 40
 9 8 5
 100 1000 70
-Sample Output
+
+# Sample Output
 38
 86
 7445
